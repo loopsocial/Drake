@@ -1,0 +1,10 @@
+lambdas:
+  ga_lambda:
+    state: ENABLED
+    code: ../extractor
+    handler: ga_extractor.handler
+    runtime: python
+    description: Google Analytics Data Extractor
+    role: arn:aws:iam::067246364203:role/service-role/LambdaLogFilterRole
+    timeout: 120
+    #memory:
