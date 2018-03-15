@@ -1,0 +1,15 @@
+---
+project: ga-extractor
+default-region: us-west-2
+code-bucket: loop-data-lambda-ga
+apps:
+  - gordon.contrib.helpers
+  - gordon.contrib.lambdas
+  - extractor
+
+events:
+  ignore_events:
+    schedule_expression: rate(30 minutes)
+    targets:
+        pull_data:
+            lambda: extractor.ga_lambda
