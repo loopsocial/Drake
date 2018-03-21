@@ -189,8 +189,8 @@ def extract_and_push_records(records, payload):
 
 def flush_records(records):
     """
-    If there's leftover records after the preprocessing, send all of them in a batch to firehose
-    before existing the pipeline
+    If there's leftover records after the pre-processing, send all of them in a batch to firehose
+    before exiting the pipeline
 
     :param records: a list of objects in the format of
         {
