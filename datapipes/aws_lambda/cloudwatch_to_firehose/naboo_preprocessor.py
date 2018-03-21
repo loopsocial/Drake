@@ -7,6 +7,7 @@ import os
 import logging
 import base64
 
+# environment variables
 log_config = {
     'response_log=': {
         'stream_name': os.environ.get('RESPONSE_DELIVERY_STREAM_NAME', "NabooDevResponseToS3"),
@@ -17,6 +18,8 @@ log_config = {
         'batch_size': os.environ.get('DELIVERY_STREAM_BATCH_SIZE', 499)
     },
 }
+log_stream_name = os.environ.get('LOG_STREAM_NAME', "test-stream")
+debug_mode = os.environ.get('DEBUG_MODE', False)
 
 HEALTH_CHECK = 'health_check'
 firehose = boto3.client('firehose', region_name='us-west-2')
@@ -124,8 +127,7 @@ def lambda_handler(event, context):
     payload = json.loads(zlib.decompress(base64.b64decode(stream), 32 + zlib.MAX_WBITS).decode('utf-8'))
     records = dict((t, []) for t in log_config.keys())
 
-    # TODO: change "test-stream" to production stream name before it's deployed
-    if not payload["logStream"] or "test-stream" != payload["logStream"]:
+    if not payload["logStream"] or log_stream_name != payload["logStream"]:
         return
 
     extract_and_push_records(records, payload)
@@ -175,7 +177,8 @@ def extract_and_push_records(records, payload):
         json_log = extract_controller_json_str(log_event['message'])
 
         if all(json_log):
-            logger.info("====" + str(json_log))
+            if debug_mode:
+                logger.info("====" + str(json_log))
             (tag, json_str) = json_log
             records[tag].append({'Data': json_str})
             records[tag] = write_records(
@@ -185,11 +188,27 @@ def extract_and_push_records(records, payload):
 
 
 def flush_records(records):
-    for tag in log_config.keys():
-        write_records(
-            log_config[tag]['stream_name'],
-            records[tag],
-            0)
+    """
+    If there's leftover records after the preprocessing, send all of them in a batch to firehose
+    before existing the pipeline
+
+    :param records: a list of objects in the format of
+        {
+           "DeliveryStreamName": "string",
+           "Records": [
+              {
+                 "Data": blob
+              }
+           ]
+        }
+    :return:
+    """
+    if records is not []:
+        for tag in log_config.keys():
+            write_records(
+                log_config[tag]['stream_name'],
+                records[tag],
+                0)
 
 
 def write_records(stream_name, records, batch_size):
