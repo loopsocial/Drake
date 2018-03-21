@@ -1,0 +1,10 @@
+{
+  "response_log=": {
+    "stream_name": "os.environ.get(\"RESPONSE_DELIVERY_STREAM_NAME\",\"NabooDevResponseToS3\")",
+    "batch_size": "os.environ.get(\"DELIVERY_STREAM_BATCH_SIZE\",499)"
+  },
+  "feed_event=": {
+    "stream_name": "os.environ.get(\"EVENT_TRACKING_DELIVERY_STREAM_NAME\",\"NabooDevFeedEventToS3\")",
+    "batch_size": "os.environ.get(\"DELIVERY_STREAM_BATCH_SIZE\",499)"
+  }
+}
