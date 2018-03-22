@@ -85,7 +85,7 @@ def extract_controller_json_str(log_line):
             # make sure it's a valid json
             try:
                 json.loads(json_str)
-                json_log = (tag, json_str)
+                json_log = (tag, json_str + "\n")
             except ValueError:
                 logger.warn("Invalid json found: " + log_line)
 
