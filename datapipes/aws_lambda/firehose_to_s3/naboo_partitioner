@@ -5,16 +5,16 @@ import base64
 import boto3
 import logging
 import time
-from datetime import datetime, time
+from datetime import datetime
 
 # environment variables
 S3_BUCKET = os.environ['S3_BUCKET']
 S3_PATH = os.environ['S3_PATH']
-debug_mode = os.environ.get('DEBUG_MODE', False)
+debug_mode = os.environ.get('DEBUG_MODE', "False")
 
 logging.basicConfig()
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG if debug_mode == "True" else logging.INFO)
 
 
 def lambda_handler(event, context):
@@ -64,5 +64,4 @@ def lambda_handler(event, context):
 
     s3.put_object(ContentType="application/json", Bucket=S3_BUCKET, Key=file_path, Body=json_str)
 
-    if debug_mode:
-        logging.info("Successfully sent %s records to S3:%s/%s" % (len(event["records"]), S3_BUCKET, file_path))
+    logger.debug("Successfully sent %s records to S3:%s/%s" % (len(event["records"]), S3_BUCKET, file_path))

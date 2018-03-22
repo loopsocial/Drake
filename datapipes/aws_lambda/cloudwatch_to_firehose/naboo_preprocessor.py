@@ -19,14 +19,14 @@ log_config = {
     },
 }
 log_stream_name = os.environ.get('LOG_STREAM_NAME', "test-stream")
-debug_mode = os.environ.get('DEBUG_MODE', False)
+debug_mode = os.environ.get('DEBUG_MODE', "False")
 
 HEALTH_CHECK = 'health_check'
 firehose = boto3.client('firehose', region_name='us-west-2')
 
 logging.basicConfig()
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG if debug_mode == "True" else logging.INFO)
 
 
 def extract_controller_json_str(log_line):
@@ -178,7 +178,7 @@ def extract_and_push_records(records, payload):
 
         if all(json_log):
             if debug_mode:
-                logger.info("====" + str(json_log))
+                logger.debug("====" + str(json_log))
             (tag, json_str) = json_log
             records[tag].append({'Data': json_str})
             records[tag] = write_records(
