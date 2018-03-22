@@ -177,8 +177,7 @@ def extract_and_push_records(records, payload):
         json_log = extract_controller_json_str(log_event['message'])
 
         if all(json_log):
-            if debug_mode:
-                logger.debug("====" + str(json_log))
+            logger.debug("====" + str(json_log))
             (tag, json_str) = json_log
             records[tag].append({'Data': json_str})
             records[tag] = write_records(
